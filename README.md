@@ -2,6 +2,6 @@
     
 
 
-Welcome to my ginance tracking application, this project was build using Ruby on Rails!
+Welcome to my finance tracker application, this project was build using Ruby on Rails!
 
 Philani Ndlovu

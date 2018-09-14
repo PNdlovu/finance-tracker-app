@@ -31,7 +31,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 #SPECIFIC FOR THIS PROJECT
 gem 'devise'
 gem 'twitter-bootstrap-rails'
-#gem 'devise-bootstrap-views'
+gem 'stock_quote'
+gem 'devise-bootstrap-views', '~> 1.1'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
