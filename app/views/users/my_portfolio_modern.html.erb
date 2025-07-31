@@ -1,0 +1,232 @@
+<%# Modern Portfolio Dashboard Example %>
+<% analytics = PortfolioAnalytics.new(current_user) %>
+
+<div class="portfolio-dashboard">
+  <!-- Portfolio Summary Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card bg-primary text-white">
+        <div class="card-body">
+          <h5 class="card-title">Total Value</h5>
+          <h2 class="mb-0">$<%= number_with_delimiter(analytics.total_value) %></h2>
+          <small>Portfolio Value</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card bg-success text-white">
+        <div class="card-body">
+          <h5 class="card-title">Daily Change</h5>
+          <h2 class="mb-0">+2.34%</h2>
+          <small>$234.56</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card bg-info text-white">
+        <div class="card-body">
+          <h5 class="card-title">Holdings</h5>
+          <h2 class="mb-0"><%= current_user.stocks.count %></h2>
+          <small>Active Positions</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card bg-warning text-white">
+        <div class="card-body">
+          <h5 class="card-title">Diversity Score</h5>
+          <h2 class="mb-0"><%= analytics.diversity_score %></h2>
+          <small>Portfolio Health</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Feature Teaser -->
+  <% unless current_user.premium? %>
+    <div class="alert alert-info premium-teaser">
+      <h4><i class="fa fa-star"></i> Unlock Premium Features</h4>
+      <p>Get real-time updates, advanced analytics, unlimited stocks, and AI-powered insights!</p>
+      <%= link_to "Upgrade to Premium", "#", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <!-- Portfolio Chart (Premium Feature) -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4>Portfolio Performance</h4>
+        </div>
+        <div class="card-body">
+          <% if current_user.premium? %>
+            <!-- Chart would go here using Chart.js or similar -->
+            <canvas id="portfolioChart" height="300"></canvas>
+          <% else %>
+            <div class="text-center py-5">
+              <i class="fa fa-chart-line fa-3x text-muted"></i>
+              <p class="mt-3">Upgrade to Premium to see performance charts</p>
+              <%= link_to "Unlock Charts", "#", class: "btn btn-sm btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h4>AI Insights</h4>
+          <span class="badge badge-premium">Premium</span>
+        </div>
+        <div class="card-body">
+          <% if current_user.premium? %>
+            <% analytics.recommendations.each do |rec| %>
+              <div class="alert alert-<%= rec[:priority] == 'high' ? 'warning' : 'info' %> mb-2">
+                <small><%= rec[:message] %></small>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center">
+              <i class="fa fa-brain fa-2x text-muted"></i>
+              <p class="mt-2">Get AI-powered portfolio recommendations</p>
+              <%= link_to "Unlock AI Insights", "#", class: "btn btn-sm btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock List with Real-time Updates -->
+  <div class="card">
+    <div class="card-header">
+      <h4>Your Holdings</h4>
+      <div class="float-right">
+        <% if current_user.can_add_stock? %>
+          <%= link_to "Add Stock", "#", class: "btn btn-sm btn-success" %>
+        <% else %>
+          <span class="text-muted">Stock limit reached - <%= link_to "Upgrade", "#" %></span>
+        <% end %>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Company</th>
+            <th>Price</th>
+            <th>Change</th>
+            <th>% of Portfolio</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% analytics.portfolio_distribution.each do |holding| %>
+            <tr class="stock-row" data-ticker="<%= holding[:ticker] %>">
+              <td>
+                <strong><%= holding[:ticker] %></strong>
+                <% if current_user.premium? %>
+                  <span class="badge badge-success">LIVE</span>
+                <% end %>
+              </td>
+              <td><%= holding[:name] %></td>
+              <td class="price-cell">$<%= holding[:value] %></td>
+              <td class="change-cell text-success">+1.23%</td>
+              <td>
+                <div class="progress" style="height: 20px;">
+                  <div class="progress-bar" style="width: <%= holding[:percentage] %>%">
+                    <%= holding[:percentage] %>%
+                  </div>
+                </div>
+              </td>
+              <td>
+                <%= link_to "Details", "#", class: "btn btn-sm btn-info" %>
+                <%= link_to "Remove", "#", class: "btn btn-sm btn-danger" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Social Features -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Top Performing Friends</h4>
+        </div>
+        <div class="card-body">
+          <% if current_user.premium? %>
+            <!-- Friend leaderboard would go here -->
+          <% else %>
+            <p class="text-center">See how your friends are performing with Premium</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Market News</h4>
+          <span class="badge badge-premium">Premium</span>
+        </div>
+        <div class="card-body">
+          <% if current_user.premium? %>
+            <!-- News feed would go here -->
+          <% else %>
+            <p class="text-center">Get personalized market news with Premium</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .premium-teaser {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+  }
+  
+  .badge-premium {
+    background: #ffd700;
+    color: #333;
+  }
+  
+  .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    margin-bottom: 1.5rem;
+  }
+  
+  .stock-row:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .price-cell {
+    font-weight: bold;
+  }
+</style>
+
+<% if current_user.premium? %>
+  <script>
+    // Real-time WebSocket updates for premium users
+    document.addEventListener('DOMContentLoaded', function() {
+      const stockRows = document.querySelectorAll('.stock-row');
+      
+      stockRows.forEach(row => {
+        const ticker = row.dataset.ticker;
+        // Connect to WebSocket for real-time updates
+        // This would use Action Cable in Rails 5+
+      });
+    });
+  </script>
+<% end %>
